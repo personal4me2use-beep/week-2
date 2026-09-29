@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#f5f3ec">
+	<title>Time, right now</title>
+	<style>
+		:root {
+			color-scheme: light;
+			--paper: #f5f3ec;
+			--ink: #20231f;
+			--muted: #777a70;
+			--line: #d8d8ce;
+			--green: #356a4d;
+			--orange: #d96842;
+			--mono: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+			--sans: "Trebuchet MS", "Segoe UI", sans-serif;
+		}
+
+		* { box-sizing: border-box; }
+
+		body {
+			margin: 0;
+			min-height: 100vh;
+			background-color: var(--paper);
+			background-image: radial-gradient(#c8c9bd 0.65px, transparent 0.65px);
+			background-size: 17px 17px;
+			color: var(--ink);
+			font-family: var(--sans);
+		}
+
+		main {
+			width: min(100% - 40px, 920px);
+			margin: 0 auto;
+			padding: 34px 0 26px;
+		}
+
+		.topline, .section-heading, .clock-meta, .target-row, footer {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.topline {
+			padding-bottom: 18px;
+			border-bottom: 1px solid var(--line);
+			font-family: var(--mono);
+			font-size: 11px;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+		}
+
+		.mark { display: flex; align-items: center; gap: 9px; }
+		.mark::before {
+			width: 9px;
+			height: 9px;
+			border-radius: 50%;
+			background: var(--orange);
+			content: "";
+		}
+
+		.clock-section { padding: clamp(50px, 10vh, 92px) 0 58px; }
+
+		.eyebrow, .section-label {
+			margin: 0;
+			color: var(--muted);
+			font-family: var(--mono);
+			font-size: 11px;
+			letter-spacing: 0.1em;
+			text-transform: uppercase;
+		}
+
+		.clock {
+			margin: 18px 0 10px;
+			font-family: var(--mono);
+			font-size: clamp(58px, 12.5vw, 132px);
+			font-variant-numeric: tabular-nums;
+			font-weight: 500;
+			letter-spacing: 0;
+			line-height: 1;
+			white-space: nowrap;
+		}
+
+		.clock .seconds { color: var(--green); }
+
+		.clock-meta {
+			justify-content: flex-start;
+			gap: 22px;
+			color: var(--muted);
+			font-size: 14px;
+		}
+
+		.clock-meta span + span::before {
+			margin-right: 22px;
+			color: var(--orange);
+			content: "/";
+		}
+
+		.countdown-section {
+			padding: 28px 0 34px;
+			border-top: 1px solid var(--line);
+			border-bottom: 1px solid var(--line);
+		}
+
+		.section-heading { align-items: baseline; gap: 16px; }
+
+		h1, h2 { margin: 0; font-weight: 500; }
+		h1 { font-size: 18px; }
+		h2 { font-size: 23px; }
+
+		.target-row {
+			justify-content: flex-start;
+			gap: 12px;
+			margin-top: 17px;
+		}
+
+		label {
+			color: var(--muted);
+			font-size: 13px;
+		}
+
+		input {
+			min-height: 39px;
+			padding: 7px 10px;
+			border: 1px solid var(--line);
+			border-radius: 2px;
+			background: #fbfaf6;
+			color: var(--ink);
+			font: 13px var(--mono);
+		}
+
+		input:focus-visible, button:focus-visible {
+			outline: 2px solid var(--green);
+			outline-offset: 3px;
+		}
+
+		button {
+			min-height: 39px;
+			padding: 0 14px;
+			border: 1px solid var(--green);
+			border-radius: 2px;
+			background: var(--green);
+			color: white;
+			cursor: pointer;
+			font: 12px var(--mono);
+			transition: background-color 150ms ease, color 150ms ease;
+		}
+
+		button:hover { background: transparent; color: var(--green); }
+
+		.countdown {
+			display: grid;
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+			gap: 20px;
+			margin-top: 32px;
+		}
+
+		.unit { min-width: 0; }
+
+		.unit-value {
+			display: block;
+			font-family: var(--mono);
+			font-size: clamp(36px, 7vw, 64px);
+			font-variant-numeric: tabular-nums;
+			line-height: 1;
+		}
+
+		.unit-label {
+			display: block;
+			margin-top: 10px;
+			color: var(--muted);
+			font-family: var(--mono);
+			font-size: 10px;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+		}
+
+		.target-caption {
+			margin: 24px 0 0;
+			color: var(--muted);
+			font-size: 13px;
+		}
+
+		footer {
+			padding-top: 17px;
+			color: var(--muted);
+			font-family: var(--mono);
+			font-size: 10px;
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+		}
+
+		@media (min-width: 561px) {
+			body { background-image: none; }
+			.mark::before, .topline > span:last-child, .section-label, footer { display: none; }
+			.clock-section { padding: 56px 0 42px; }
+			.clock { font-size: clamp(58px, 10vw, 104px); }
+			.clock-meta span + span::before { content: none; }
+			.countdown-section { padding: 22px 0 26px; }
+			.countdown { margin-top: 24px; }
+		}
+
+		@media (max-width: 560px) {
+			main { width: min(100% - 30px, 920px); padding-top: 22px; }
+			.clock-section { padding: 64px 0 48px; }
+			.clock { font-size: clamp(48px, 14vw, 72px); }
+			.clock-meta { gap: 10px; font-size: 12px; }
+			.clock-meta span + span::before { margin-right: 10px; }
+			.target-row { align-items: flex-start; flex-direction: column; }
+			input { width: 100%; }
+			.countdown { gap: 12px; }
+			.unit-value { font-size: clamp(32px, 10vw, 48px); }
+			.unit-label { font-size: 9px; }
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after { transition-duration: 0.01ms !important; }
+		}
+	</style>
+</head>
+<body>
+	<main>
+		<header class="topline">
+			<span class="mark">The present moment</span>
+			<span>Local time / 24h</span>
+		</header>
+
+		<section class="clock-section" aria-labelledby="clock-title">
+			<p class="eyebrow" id="clock-title">Your time, right now</p>
+			<time class="clock" id="clock" aria-label="Current local time">--:--:<span class="seconds">--</span></time>
+			<div class="clock-meta">
+				<span id="date">Loading date</span>
+				<span id="timezone">Local timezone</span>
+			</div>
+		</section>
+
+		<section class="countdown-section" aria-labelledby="countdown-title">
+			<div class="section-heading">
+				<h1 id="countdown-title">A little way ahead</h1>
+				<p class="section-label">Countdown</p>
+			</div>
+
+			<div class="target-row">
+				<label for="target-date">Counting down to</label>
+				<input id="target-date" type="datetime-local" aria-describedby="target-caption">
+				<button id="new-year-button" type="button">Next New Year</button>
+			</div>
+
+			<div class="countdown" aria-live="off" aria-label="Time remaining">
+				<div class="unit"><span class="unit-value" id="days">000</span><span class="unit-label">Days</span></div>
+				<div class="unit"><span class="unit-value" id="hours">00</span><span class="unit-label">Hours</span></div>
+				<div class="unit"><span class="unit-value" id="minutes">00</span><span class="unit-label">Minutes</span></div>
+				<div class="unit"><span class="unit-value" id="seconds">00</span><span class="unit-label">Seconds</span></div>
+			</div>
+			<p class="target-caption" id="target-caption">Until January 1, 2027</p>
+		</section>
+
+		<footer>
+			<span>One second at a time</span>
+			<span id="year"></span>
+		</footer>
+	</main>
+
+	<script>
+		const clockElement = document.querySelector("#clock");
+		const dateElement = document.querySelector("#date");
+		const timezoneElement = document.querySelector("#timezone");
+		const targetInput = document.querySelector("#target-date");
+		const targetCaption = document.querySelector("#target-caption");
+		const countdownUnits = {
+			days: document.querySelector("#days"),
+			hours: document.querySelector("#hours"),
+			minutes: document.querySelector("#minutes"),
+			seconds: document.querySelector("#seconds")
+		};
+
+		const pad = value => String(value).padStart(2, "0");
+
+		function formatInputDate(date) {
+			const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+			return localDate.toISOString().slice(0, 16);
+		}
+
+		function setNextNewYear() {
+			const now = new Date();
+			const nextNewYear = new Date(now.getFullYear() + 1, 0, 1, 0, 0, 0);
+			targetInput.value = formatInputDate(nextNewYear);
+			updateCountdown();
+		}
+
+		function updateClock(now) {
+			const hours = pad(now.getHours());
+			const minutes = pad(now.getMinutes());
+			const seconds = pad(now.getSeconds());
+			clockElement.innerHTML = `${hours}:${minutes}:<span class="seconds">${seconds}</span>`;
+			clockElement.dateTime = now.toISOString();
+			dateElement.textContent = new Intl.DateTimeFormat(undefined, {
+				weekday: "long", month: "long", day: "numeric", year: "numeric"
+			}).format(now);
+			timezoneElement.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone || "Local time";
+			document.querySelector("#year").textContent = String(now.getFullYear());
+		}
+
+		function updateCountdown() {
+			const target = new Date(targetInput.value);
+			const remaining = target.getTime() - Date.now();
+
+			if (!targetInput.value || Number.isNaN(target.getTime()) || remaining <= 0) {
+				Object.values(countdownUnits).forEach((element, index) => {
+					element.textContent = index === 0 ? "000" : "00";
+				});
+				targetCaption.textContent = targetInput.value && !Number.isNaN(target.getTime())
+					? "That moment has arrived. Choose another date to keep counting."
+					: "Choose a date and time to start the countdown.";
+				return;
+			}
+
+			const totalSeconds = Math.floor(remaining / 1000);
+			countdownUnits.days.textContent = String(Math.floor(totalSeconds / 86400)).padStart(3, "0");
+			countdownUnits.hours.textContent = pad(Math.floor(totalSeconds % 86400 / 3600));
+			countdownUnits.minutes.textContent = pad(Math.floor(totalSeconds % 3600 / 60));
+			countdownUnits.seconds.textContent = pad(totalSeconds % 60);
+			targetCaption.textContent = `Until ${new Intl.DateTimeFormat(undefined, {
+				dateStyle: "full", timeStyle: "short"
+			}).format(target)}`;
+		}
+
+		function tick() {
+			const now = new Date();
+			updateClock(now);
+			updateCountdown();
+		}
+
+		targetInput.addEventListener("input", updateCountdown);
+		document.querySelector("#new-year-button").addEventListener("click", setNextNewYear);
+		setNextNewYear();
+		tick();
+		window.setInterval(tick, 1000);
+	</script>
+</body>
+</html>
